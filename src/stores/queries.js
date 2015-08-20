@@ -4,19 +4,18 @@ import Immutable from "immutable";
 
 const CHANGE_EVENT = "change";
 
+let defaultMapping = {
+	"facetValues": [],
+	"searchInAnnotations": true,
+	"searchInTranscriptions": true,
+	"term": "",
+	"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"]
+};
+
 class Queries extends BaseStore {
 	constructor() {
 		super();
-
-		this.model = Immutable.fromJS({
-			"facetValues": [],
-			"searchInAnnotations": true,
-			"searchInTranscriptions": true,
-			"term": "",
-			"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"]
-		});
-
-		this.data = this.model;
+		this.data = {};
 	}
 
 	getState() {
@@ -28,6 +27,10 @@ class Queries extends BaseStore {
 	}
 
 	setDefaults(config) {
+		let useMapping = config.useMapping || defaultMapping;
+		this.model = Immutable.fromJS(useMapping);
+		this.data = this.model;
+
 		let sortLevels = Immutable.fromJS(config.levels);
 		let sortParameters = sortLevels.map((fieldName) =>
 			new Immutable.Map({
@@ -37,7 +40,7 @@ class Queries extends BaseStore {
 
 		this.model = this.data.withMutations((map) => {
 			map.set("sortParameters", sortParameters);
-			map.set("resultFields", sortLevels);
+			map.set("resultFields", config.resultFields || sortLevels);
 		});
 
 		this.data = this.model;

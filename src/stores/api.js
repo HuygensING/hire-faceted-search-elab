@@ -5,13 +5,18 @@ import queriesStore from "../stores/queries";
 import configStore from "../stores/config";
 
 let postResults = function(receiveFunc) {
+	let headers = {
+		"Content-Type": "application/json",
+	};
+	if(configStore.getState().get("vre")) {
+		headers.VRE_ID = configStore.getState().get("vre");
+	}
+
 	let postOptions = {
 		data: JSON.stringify(queriesStore.getState()),
-		headers: {
-			"Content-Type": "application/json",
-		},
+		headers: headers,
 		method: "POST",
-		url: `${configStore.getState().get("baseURL")}api/search`
+		url: `${configStore.getState().get("baseURL")}${configStore.getState().get("searchPath") || "api/search"}`
 	};
 
 	let postDone = function(err, resp, body) {
@@ -35,8 +40,11 @@ let getResults = function(url, receiveFunc) {
 
 	let getDone = function(err, resp, body) {
 		if (err) { handleError(err, resp, body); }
-
-		serverActions[receiveFunc](JSON.parse(body));
+		let data = JSON.parse(body);
+		if(configStore.getState().get("resultMapFunc")) {
+			configStore.getState().get("resultMapFunc")(data);
+		}
+		serverActions[receiveFunc](data);
 	};
 
 	xhr(getOptions, getDone)
