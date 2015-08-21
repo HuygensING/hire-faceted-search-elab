@@ -18,7 +18,8 @@ class TextSearch extends React.Component {
 
 		this.state = {
 			value: "",
-			searching: false
+			searching: false,
+			fullTextSearchField: null
 		}
 	}
 
@@ -35,6 +36,12 @@ class TextSearch extends React.Component {
 		})
 	}
 
+	handleFieldChange(ev) {
+		this.setState({
+			fullTextSearchField: ev.target.value === "default" ? null : ev.target.value
+		});
+	}
+
 	handleInputKeyDown(ev) {
 		if (ev.keyCode === 13) {
 			this.handleSubmit();
@@ -45,13 +52,28 @@ class TextSearch extends React.Component {
 		this.setState({
 			searching: true
 		});
-
-		queriesActions.changeSearchTerm(this.state.value);
+		queriesActions.changeSearchTerm({
+			value: this.state.value, 
+			fullTextSearchField: this.state.fullTextSearchField 
+		});
 	}
 
 	render() {
+		let select = null;
+		if(this.props.fullTextSearchFields) {
+			select = 
+				(<select onChange={this.handleFieldChange.bind(this)} name="full-text-search-field">
+					<option value="default">Zoeken in standaardveld</option>
+					{this.props.fullTextSearchFields.map(function(field) {
+						return (
+							<option value={field}>Zoeken in {field}</option>
+						)
+					})}
+				</select>);
+		}
 		return (
 			<li className="hire-faceted-search-text-search">
+				{select}
 				<input
 					onKeyDown={this.handleInputKeyDown.bind(this)}
 					onChange={this.handleInputChange.bind(this)}

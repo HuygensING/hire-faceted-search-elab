@@ -88,6 +88,21 @@ class FacetedSearch extends React.Component {
 		this.props.onChange(result.toJS());
 	}
 
+	getTextValue() {
+		if(this.state.queries.get("term") !== "") {
+			return this.state.queries.get("term");
+		} else if(this.state.config.get("fullTextSearchFields") && this.state.queries.get("fullTextSearchParameters")) {
+			let fts = this.state.config.get("fullTextSearchFields").toArray();
+			let ftsp = this.state.queries.get("fullTextSearchParameters");
+			for(let i in ftsp) {
+				if(fts.indexOf(ftsp[i].name) > -1) {
+					return ftsp[i].term;
+				}
+			}
+		}
+		return null;
+	}
+
 	render() {
 		let facetData = this.state.results.get("queryResults").size ?
 			this.state.results.get("queryResults").last() :
@@ -96,8 +111,9 @@ class FacetedSearch extends React.Component {
 		let facets = this.state.results.get("queryResults").size ?
 			<Facets
 				facetData={facetData}
+				fullTextSearchFields={this.state.config.get("fullTextSearchFields") ? this.state.config.get("fullTextSearchFields").toArray() : null }
 				i18n={this.state.i18n}
-				textValue={this.state.queries.get("term")}
+				textValue={this.getTextValue()}
 				selectedValues={this.state.queries.get("facetValues")} /> :
 			null;
 

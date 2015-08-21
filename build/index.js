@@ -1721,7 +1721,7 @@ var Facets = (function (_React$Component) {
 					{ onClick: this.handleButtonClick.bind(this) },
 					"New search"
 				),
-				_react2["default"].createElement(_textSearch2["default"], { value: this.props.textValue }),
+				_react2["default"].createElement(_textSearch2["default"], { fullTextSearchFields: this.props.fullTextSearchFields, value: this.props.textValue }),
 				facets
 			);
 		}
@@ -3776,7 +3776,8 @@ var TextSearch = (function (_React$Component) {
 
 		this.state = {
 			value: "",
-			searching: false
+			searching: false,
+			fullTextSearchField: null
 		};
 	}
 
@@ -3796,6 +3797,13 @@ var TextSearch = (function (_React$Component) {
 			});
 		}
 	}, {
+		key: "handleFieldChange",
+		value: function handleFieldChange(ev) {
+			this.setState({
+				fullTextSearchField: ev.target.value === "default" ? null : ev.target.value
+			});
+		}
+	}, {
 		key: "handleInputKeyDown",
 		value: function handleInputKeyDown(ev) {
 			if (ev.keyCode === 13) {
@@ -3808,15 +3816,38 @@ var TextSearch = (function (_React$Component) {
 			this.setState({
 				searching: true
 			});
-
-			_actionsQueries2["default"].changeSearchTerm(this.state.value);
+			_actionsQueries2["default"].changeSearchTerm({
+				value: this.state.value,
+				fullTextSearchField: this.state.fullTextSearchField
+			});
 		}
 	}, {
 		key: "render",
 		value: function render() {
+			var select = null;
+			if (this.props.fullTextSearchFields) {
+				select = _react2["default"].createElement(
+					"select",
+					{ onChange: this.handleFieldChange.bind(this), name: "full-text-search-field" },
+					_react2["default"].createElement(
+						"option",
+						{ value: "default" },
+						"Zoeken in standaardveld"
+					),
+					this.props.fullTextSearchFields.map(function (field) {
+						return _react2["default"].createElement(
+							"option",
+							{ value: field },
+							"Zoeken in ",
+							field
+						);
+					})
+				);
+			}
 			return _react2["default"].createElement(
 				"li",
 				{ className: "hire-faceted-search-text-search" },
+				select,
 				_react2["default"].createElement("input", {
 					onKeyDown: this.handleInputKeyDown.bind(this),
 					onChange: this.handleInputChange.bind(this),
@@ -4072,14 +4103,31 @@ var FacetedSearch = (function (_React$Component) {
 			this.props.onChange(result.toJS());
 		}
 	}, {
+		key: "getTextValue",
+		value: function getTextValue() {
+			if (this.state.queries.get("term") !== "") {
+				return this.state.queries.get("term");
+			} else if (this.state.config.get("fullTextSearchFields") && this.state.queries.get("fullTextSearchParameters")) {
+				var fts = this.state.config.get("fullTextSearchFields").toArray();
+				var ftsp = this.state.queries.get("fullTextSearchParameters");
+				for (var i in ftsp) {
+					if (fts.indexOf(ftsp[i].name) > -1) {
+						return ftsp[i].term;
+					}
+				}
+			}
+			return null;
+		}
+	}, {
 		key: "render",
 		value: function render() {
 			var facetData = this.state.results.get("queryResults").size ? this.state.results.get("queryResults").last() : this.state.results.get("initResults");
 
 			var facets = this.state.results.get("queryResults").size ? _react2["default"].createElement(_componentsFacetedSearch2["default"], {
 				facetData: facetData,
+				fullTextSearchFields: this.state.config.get("fullTextSearchFields") ? this.state.config.get("fullTextSearchFields").toArray() : null,
 				i18n: this.state.i18n,
-				textValue: this.state.queries.get("term"),
+				textValue: this.getTextValue(),
 				selectedValues: this.state.queries.get("facetValues") }) : null;
 
 			var results = this.state.results.get("queryResults").size > 0 ? _react2["default"].createElement(_componentsResults2["default"], {
@@ -4480,8 +4528,17 @@ var Queries = (function (_BaseStore) {
 		}
 	}, {
 		key: "changeSearchTerm",
-		value: function changeSearchTerm(value) {
-			this.data = this.data.set("term", value);
+		value: function changeSearchTerm(data) {
+			if (data.fullTextSearchField) {
+				this.data = this.data.set("fullTextSearchParameters", [{
+					name: data.fullTextSearchField,
+					term: data.value
+				}]);
+				this.data = this.data.set("term", "");
+			} else {
+				this.data = this.data["delete"]("fullTextSearchParameters");
+				this.data = this.data.set("term", data.value);
+			}
 		}
 	}]);
 

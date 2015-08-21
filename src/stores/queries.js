@@ -107,8 +107,17 @@ class Queries extends BaseStore {
 
 	}
 
-	changeSearchTerm(value) {
-		this.data = this.data.set("term", value);
+	changeSearchTerm(data) {
+		if(data.fullTextSearchField) {
+			this.data = this.data.set("fullTextSearchParameters", [{
+				name: data.fullTextSearchField,
+				term: data.value
+			}]);
+			this.data = this.data.set("term", "");
+		} else {
+			this.data = this.data.delete("fullTextSearchParameters");
+			this.data = this.data.set("term", data.value);
+		}
 	}
 }
 

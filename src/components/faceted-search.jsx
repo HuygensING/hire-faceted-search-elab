@@ -12,6 +12,7 @@ class Facets extends React.Component {
 	}
 
 	render() {
+
 		let facets = this.props.facetData.get("facets").map((data, index) => {
 			let selectedValues = this.props.selectedValues
 				.find((values) =>	values.get("name") === data.get("name"));
@@ -31,7 +32,7 @@ class Facets extends React.Component {
 		return (
 			<ul className="hire-faceted-search-facets">
 				<button onClick={this.handleButtonClick.bind(this)}>New search</button>
-				<TextSearch value={this.props.textValue} />
+				<TextSearch fullTextSearchFields={this.props.fullTextSearchFields} value={this.props.textValue} />
 				{facets}
 			</ul>
 		);
