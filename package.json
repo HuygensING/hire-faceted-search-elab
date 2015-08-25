@@ -1,5 +1,5 @@
 {
-  "name": "hire-faceted-search",
+  "name": "hire-faceted-search-elab",
   "version": "2.0.7",
   "description": "",
   "main": "build/index.js",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/HuygensING/hire-faceted-search.git"
+    "url": "https://github.com/HuygensING/hire-faceted-search-elab.git"
   },
   "author": "gijsjan.brouwer@huygens.knaw.nl (https://github.com/Gijsjan)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/HuygensING/hire-faceted-search/issues"
+    "url": "https://github.com/HuygensING/hire-faceted-search-elab/issues"
   },
-  "homepage": "https://github.com/HuygensING/hire-faceted-search",
+  "homepage": "https://github.com/HuygensING/hire-faceted-search-elab",
   "peerDependencies": {
     "react": "^0.13.3"
   },
