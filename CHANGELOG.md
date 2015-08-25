@@ -1,3 +1,6 @@
+### v2.0.8	(2015/8/25 13:53)
+* Update Readme and package.json after split up repo's
+
 ### v2.0.7	(2015/8/25 13:32)
 * Fix typo
 
