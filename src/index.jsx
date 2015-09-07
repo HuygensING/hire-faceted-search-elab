@@ -21,7 +21,7 @@ const logger = store => next => action => {
 };
 
 let createStoreWithMiddleware = applyMiddleware(logger, thunkMiddleware)(createStore);
-let store = createStoreWithMiddleware(reducers);
+
 
 let fs = require("fs");
 import insertCss from "insert-css";
@@ -31,36 +31,36 @@ insertCss(css, {prepend: true});
 class FacetedSearch extends React.Component {
 	constructor(props) {
 		super(props);
-
-		store.dispatch({
+		this.store = createStoreWithMiddleware(reducers);
+		this.store.dispatch({
 			type: "SET_QUERY_DEFAULTS",
 			config: this.props.config
 		});
 
-		store.dispatch({
+		this.store.dispatch({
 			type: "SET_CONFIG_DEFAULTS",
 			config: this.props.config
 		});
 
-		store.dispatch({
+		this.store.dispatch({
 			type: "SET_LABELS",
 			labels: this.props.labels
 		});
 
-		this.state = store.getState();
+		this.state = this.store.getState();
 	}
 
 	componentDidMount() {
-		this.unsubscribe = store.subscribe(() =>
-			this.setState(store.getState())
+		this.unsubscribe = this.store.subscribe(() =>
+			this.setState(this.store.getState())
 		);
 
-		store.dispatch(fetchResults());
+		this.store.dispatch(fetchResults());
 	}
 
 	componentWillReceiveProps(nextProps) {
 		if (!isEqual(this.state.labels, nextProps.labels)) {
-			store.dispatch({
+			this.store.dispatch({
 				type: "SET_LABELS",
 				labels: nextProps.labels
 			});
@@ -80,11 +80,11 @@ class FacetedSearch extends React.Component {
 	}
 
 	handleFetchNextResults(url) {
-		store.dispatch(fetchNextResults(url));
+		this.store.dispatch(fetchNextResults(url));
 	}
 
 	handleSelectFacetValue(facetName, value, remove) {
-		store.dispatch(selectFacetValue(facetName, value, remove));
+		this.store.dispatch(selectFacetValue(facetName, value, remove));
 	}
 
 	render() {
@@ -102,13 +102,13 @@ class FacetedSearch extends React.Component {
 					facetList={this.props.facetList}
 					labels={this.state.labels}
 					onChangeSearchTerm={(value) =>
-						store.dispatch(changeSearchTerm(value))
+						this.store.dispatch(changeSearchTerm(value))
 					}
 					onNewSearch={() =>
-						store.dispatch(newSearch())
+						this.store.dispatch(newSearch())
 					}
 					onSelectFacetValue={(...args) =>
-						store.dispatch(selectFacetValue(...args))
+						this.store.dispatch(selectFacetValue(...args))
 					}
 					queries={this.state.queries}
 					results={this.state.results} />
@@ -116,19 +116,19 @@ class FacetedSearch extends React.Component {
 					config={this.state.config}
 					labels={this.state.labels}
 					onChangeSearchTerm={(value) =>
-						store.dispatch(changeSearchTerm(value))
+						this.store.dispatch(changeSearchTerm(value))
 					}
 					onFetchNextResults={(url) =>
-						store.dispatch(fetchNextResults(url))
+						this.store.dispatch(fetchNextResults(url))
 					}
 					onSelect={(item) =>
 						this.props.onSelect(item)
 					}
 					onSelectFacetValue={(...args) =>
-						store.dispatch(selectFacetValue(...args))
+						this.store.dispatch(selectFacetValue(...args))
 					}
 					onSetSort={(field) =>
-						store.dispatch(setSort(field))
+						this.store.dispatch(setSort(field))
 					}
 					queries={this.state.queries}
 					results={this.state.results} />

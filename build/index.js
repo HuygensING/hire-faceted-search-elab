@@ -73,33 +73,9 @@ var Input = (function (_React$Component) {
 			return this.props.value !== nextProps.value;
 		}
 	}, {
-		key: "handleBlur",
-		value: function handleBlur(ev) {
-			this.props.onBlur(ev);
-		}
-	}, {
-		key: "handleFocus",
-		value: function handleFocus(ev) {
-			this.props.onFocus(ev);
-		}
-	}, {
 		key: "handleChange",
 		value: function handleChange(ev) {
 			this.props.onChange(ev.currentTarget.value, ev);
-		}
-	}, {
-		key: "handleKeyDown",
-		value: function handleKeyDown(ev) {
-			if (this.props.onKeyDown) {
-				this.props.onKeyDown(ev);
-			}
-		}
-	}, {
-		key: "handleKeyUp",
-		value: function handleKeyUp(ev) {
-			if (this.props.onKeyUp) {
-				this.props.onKeyUp(ev);
-			}
 		}
 	}, {
 		key: "render",
@@ -115,11 +91,11 @@ var Input = (function (_React$Component) {
 				{
 					className: (0, _classnames2["default"])("hire-input", { invalid: !this.state.valid }) },
 				_react2["default"].createElement("input", {
-					onBlur: this.handleBlur.bind(this),
+					onBlur: this.props.onBlur,
 					onChange: this.handleChange.bind(this),
-					onFocus: this.handleFocus.bind(this),
-					onKeyDown: this.handleKeyDown.bind(this),
-					onKeyUp: this.handleKeyUp.bind(this),
+					onFocus: this.props.onFocus,
+					onKeyDown: this.props.onKeyDown,
+					onKeyUp: this.props.onKeyUp,
 					placeholder: this.props.placeholder,
 					style: this.props.style,
 					value: this.props.value }),
@@ -2266,7 +2242,7 @@ function createXHR(options, callback) {
 
         return body
     }
-    
+
     var failureResponse = {
                 body: undefined,
                 headers: {},
@@ -2275,7 +2251,7 @@ function createXHR(options, callback) {
                 url: uri,
                 rawRequest: xhr
             }
-    
+
     function errorFunc(evt) {
         clearTimeout(timeoutTimer)
         if(!(evt instanceof Error)){
@@ -2298,7 +2274,7 @@ function createXHR(options, callback) {
         }
         var response = failureResponse
         var err = null
-        
+
         if (status !== 0){
             response = {
                 body: getBody(),
@@ -2315,9 +2291,9 @@ function createXHR(options, callback) {
             err = new Error("Internal XMLHttpRequest Error")
         }
         callback(err, response, response.body)
-        
+
     }
-    
+
     if (typeof options === "string") {
         options = { uri: options }
     }
@@ -2352,7 +2328,7 @@ function createXHR(options, callback) {
         isJson = true
         headers["accept"] || headers["Accept"] || (headers["Accept"] = "application/json") //Don't override existing accept header declared by user
         if (method !== "GET" && method !== "HEAD") {
-            headers["Content-Type"] = "application/json"
+            headers["content-type"] || headers["Content-Type"] || (headers["Content-Type"] = "application/json") //Don't override existing accept header declared by user
             body = JSON.stringify(options.json)
         }
     }
@@ -2394,8 +2370,8 @@ function createXHR(options, callback) {
     if ("responseType" in options) {
         xhr.responseType = options.responseType
     }
-    
-    if ("beforeSend" in options && 
+
+    if ("beforeSend" in options &&
         typeof options.beforeSend === "function"
     ) {
         options.beforeSend(xhr)
@@ -4838,7 +4814,6 @@ var logger = function logger(store) {
 };
 
 var createStoreWithMiddleware = (0, _redux.applyMiddleware)(logger, _reduxThunk2["default"])(_redux.createStore);
-var store = createStoreWithMiddleware(_reducers2["default"]);
 
 
 
@@ -4852,23 +4827,23 @@ var FacetedSearch = (function (_React$Component) {
 		_classCallCheck(this, FacetedSearch);
 
 		_get(Object.getPrototypeOf(FacetedSearch.prototype), "constructor", this).call(this, props);
-
-		store.dispatch({
+		this.store = createStoreWithMiddleware(_reducers2["default"]);
+		this.store.dispatch({
 			type: "SET_QUERY_DEFAULTS",
 			config: this.props.config
 		});
 
-		store.dispatch({
+		this.store.dispatch({
 			type: "SET_CONFIG_DEFAULTS",
 			config: this.props.config
 		});
 
-		store.dispatch({
+		this.store.dispatch({
 			type: "SET_LABELS",
 			labels: this.props.labels
 		});
 
-		this.state = store.getState();
+		this.state = this.store.getState();
 	}
 
 	_createClass(FacetedSearch, [{
@@ -4876,17 +4851,17 @@ var FacetedSearch = (function (_React$Component) {
 		value: function componentDidMount() {
 			var _this = this;
 
-			this.unsubscribe = store.subscribe(function () {
-				return _this.setState(store.getState());
+			this.unsubscribe = this.store.subscribe(function () {
+				return _this.setState(_this.store.getState());
 			});
 
-			store.dispatch((0, _actionsResults.fetchResults)());
+			this.store.dispatch((0, _actionsResults.fetchResults)());
 		}
 	}, {
 		key: "componentWillReceiveProps",
 		value: function componentWillReceiveProps(nextProps) {
 			if (!(0, _lodashIsequal2["default"])(this.state.labels, nextProps.labels)) {
-				store.dispatch({
+				this.store.dispatch({
 					type: "SET_LABELS",
 					labels: nextProps.labels
 				});
@@ -4909,12 +4884,12 @@ var FacetedSearch = (function (_React$Component) {
 	}, {
 		key: "handleFetchNextResults",
 		value: function handleFetchNextResults(url) {
-			store.dispatch((0, _actionsResults.fetchNextResults)(url));
+			this.store.dispatch((0, _actionsResults.fetchNextResults)(url));
 		}
 	}, {
 		key: "handleSelectFacetValue",
 		value: function handleSelectFacetValue(facetName, value, remove) {
-			store.dispatch((0, _actionsQueries.selectFacetValue)(facetName, value, remove));
+			this.store.dispatch((0, _actionsQueries.selectFacetValue)(facetName, value, remove));
 		}
 	}, {
 		key: "render",
@@ -4936,17 +4911,17 @@ var FacetedSearch = (function (_React$Component) {
 					facetList: this.props.facetList,
 					labels: this.state.labels,
 					onChangeSearchTerm: function (value) {
-						return store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
+						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},
 					onNewSearch: function () {
-						return store.dispatch((0, _actionsQueries.newSearch)());
+						return _this2.store.dispatch((0, _actionsQueries.newSearch)());
 					},
 					onSelectFacetValue: function () {
 						for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
 							args[_key] = arguments[_key];
 						}
 
-						return store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
+						return _this2.store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
 					},
 					queries: this.state.queries,
 					results: this.state.results }),
@@ -4954,10 +4929,10 @@ var FacetedSearch = (function (_React$Component) {
 					config: this.state.config,
 					labels: this.state.labels,
 					onChangeSearchTerm: function (value) {
-						return store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
+						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},
 					onFetchNextResults: function (url) {
-						return store.dispatch((0, _actionsResults.fetchNextResults)(url));
+						return _this2.store.dispatch((0, _actionsResults.fetchNextResults)(url));
 					},
 					onSelect: function (item) {
 						return _this2.props.onSelect(item);
@@ -4967,10 +4942,10 @@ var FacetedSearch = (function (_React$Component) {
 							args[_key2] = arguments[_key2];
 						}
 
-						return store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
+						return _this2.store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
 					},
 					onSetSort: function (field) {
-						return store.dispatch((0, _actionsQueries.setSort)(field));
+						return _this2.store.dispatch((0, _actionsQueries.setSort)(field));
 					},
 					queries: this.state.queries,
 					results: this.state.results })
