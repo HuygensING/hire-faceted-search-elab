@@ -1,3 +1,11 @@
+### v2.1.0	(2015/9/7 9:8)
+* travis icon in readme
+* added tests
+* new version of results action
+* fixed scrolling bug when result list is invisible
+* clear list before new result set
+* moved store to root component instance
+
 ### v2.0.8	(2015/8/25 13:53)
 * Update Readme and package.json after split up repo's
 
