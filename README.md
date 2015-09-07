@@ -1,5 +1,8 @@
 # Hire Faceted Search (eLaborate version)
 
+[![build status](https://travis-ci.org/HuygensING/hire-faceted-search-elab.svg?branch=master "Build status")](https://travis-ci.org/HuygensING/hire-faceted-search-elab)
+
+
 A faceted search React component.
 
 ## Example
