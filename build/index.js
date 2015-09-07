@@ -2594,6 +2594,9 @@ function setSort(field) {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 exports.fetchResults = fetchResults;
 exports.fetchNextResults = fetchNextResults;
 
@@ -2605,11 +2608,18 @@ var _xhr2 = _interopRequireDefault(_xhr);
 
 var handleError = function handleError() {};
 
-var getResults = function getResults(url, done) {
+var server = {
+	performXhr: function performXhr(options, cb) {
+		(0, _xhr2["default"])(options, cb);
+	}
+};
+
+exports.server = server;
+var getResults = function getResults(url, headers, done) {
 	var options = {
-		headers: {
+		headers: _extends(headers, {
 			"Content-Type": "application/json"
-		},
+		}),
 		url: url
 	};
 
@@ -2621,17 +2631,17 @@ var getResults = function getResults(url, done) {
 		done(JSON.parse(body));
 	};
 
-	(0, _xhr2["default"])(options, cb);
+	server.performXhr(options, cb);
 };
 
-var postResults = function postResults(query, baseUrl, rows, done) {
+var postResults = function postResults(query, headers, url, rows, done) {
 	var options = {
 		data: query,
-		headers: {
+		headers: _extends(headers, {
 			"Content-Type": "application/json"
-		},
+		}),
 		method: "POST",
-		url: baseUrl + "api/search"
+		url: url + "api/search"
 	};
 
 	var cb = function cb(err, resp, body) {
@@ -2639,12 +2649,12 @@ var postResults = function postResults(query, baseUrl, rows, done) {
 			handleError(err, resp, body);
 		}
 
-		var url = resp.headers.location + "?rows=" + rows;
+		var cbUrl = resp.headers.location + "?rows=" + rows;
 
-		getResults(url, done);
+		getResults(cbUrl, headers, done);
 	};
 
-	(0, _xhr2["default"])(options, cb);
+	server.performXhr(options, cb);
 };
 
 var dispatchResponse = function dispatchResponse(dispatch, type, response) {
@@ -2669,7 +2679,7 @@ function fetchResults() {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS", cache[stringifiedQuery]);
 		// }
 
-		return postResults(stringifiedQuery, state.config.baseURL, state.config.rows, function (response) {
+		return postResults(stringifiedQuery, state.config.headers || {}, state.config.baseURL, state.config.rows, function (response) {
 			cache[stringifiedQuery] = response;
 
 			return dispatchResponse(dispatch, "RECEIVE_RESULTS", response);
@@ -2678,14 +2688,15 @@ function fetchResults() {
 }
 
 function fetchNextResults(url) {
-	return function (dispatch) {
+	return function (dispatch, getState) {
 		dispatch({ type: "REQUEST_RESULTS" });
 
+		var state = getState();
 		// if (cache.hasOwnProperty(url)) {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS_FROM_URL", cache[url]);
 		// }
 
-		return getResults(url, function (response) {
+		return getResults(url, state.config.headers || {}, function (response) {
 			cache[url] = response;
 
 			return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response);

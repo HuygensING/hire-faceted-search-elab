@@ -6,11 +6,17 @@ let handleError = function() {
 
 };
 
-let getResults = function(url, done) {
+export let server = {
+	performXhr: function(options, cb) {
+		xhr(options, cb);
+	}
+};
+
+let getResults = function(url, headers, done) {
 	let options = {
-		headers: {
+		headers: Object.assign(headers, {
 			"Content-Type": "application/json"
-		},
+		}),
 		url: url
 	};
 
@@ -20,28 +26,28 @@ let getResults = function(url, done) {
 		done(JSON.parse(body));
 	};
 
-	xhr(options, cb);
+	server.performXhr(options, cb);
 };
 
-let postResults = function(query, baseUrl, rows, done) {
+let postResults = function(query, headers, url, rows, done) {
 	let options = {
 		data: query,
-		headers: {
+		headers: Object.assign(headers, {
 			"Content-Type": "application/json"
-		},
+		}),
 		method: "POST",
-		url: `${baseUrl}api/search`
+		url: `${url}api/search`
 	};
 
 	let cb = function(err, resp, body) {
 		if (err) { handleError(err, resp, body); }
 
-		let url = `${resp.headers.location}?rows=${rows}`;
+		let cbUrl = `${resp.headers.location}?rows=${rows}`;
 
-		getResults(url, done);
+		getResults(cbUrl, headers, done);
 	};
 
-	xhr(options, cb);
+	server.performXhr(options, cb);
 };
 
 let dispatchResponse = (dispatch, type, response) =>
@@ -51,7 +57,6 @@ let dispatchResponse = (dispatch, type, response) =>
 	});
 
 let cache = {};
-
 export function fetchResults() {
 	return function (dispatch, getState) {
 		dispatch({type: "CLEAR_LIST"});
@@ -69,6 +74,7 @@ export function fetchResults() {
 
 		return postResults(
 			stringifiedQuery,
+			state.config.headers || {},
 			state.config.baseURL,
 			state.config.rows,
 			(response) => {
@@ -81,17 +87,22 @@ export function fetchResults() {
 }
 
 export function fetchNextResults(url) {
-	return function (dispatch) {
+	return function (dispatch, getState) {
 		dispatch({type: "REQUEST_RESULTS"});
 
+		let state = getState();
 		// if (cache.hasOwnProperty(url)) {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS_FROM_URL", cache[url]);
 		// }
 
-		return getResults(url, (response) => {
-			cache[url] = response;
+		return getResults(
+			url,
+			state.config.headers || {},
+			(response) => {
+				cache[url] = response;
 
-			return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response);
-		});
+				return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response);
+			}
+		);
 	};
 }
