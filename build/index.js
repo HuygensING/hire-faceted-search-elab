@@ -2255,7 +2255,7 @@ function createXHR(options, callback) {
     function errorFunc(evt) {
         clearTimeout(timeoutTimer)
         if(!(evt instanceof Error)){
-            evt = new Error("" + (evt || "unknown") )
+            evt = new Error("" + (evt || "Unknown XMLHttpRequest Error") )
         }
         evt.statusCode = 0
         callback(evt, failureResponse)
@@ -2353,7 +2353,9 @@ function createXHR(options, callback) {
         timeoutTimer = setTimeout(function(){
             aborted=true//IE9 may still call readystatechange
             xhr.abort("timeout")
-            errorFunc();
+            var e = new Error("XMLHttpRequest timeout")
+            e.code = "ETIMEDOUT"
+            errorFunc(e)
         }, options.timeout )
     }
 
@@ -4174,8 +4176,7 @@ var Results = (function (_React$Component) {
 			var nth = this.props.results.last.results.length - this.props.config.rows + 1;
 
 			var listItem = _react2["default"].findDOMNode(this).querySelector(".hire-faceted-search-result-list > li:nth-child(" + nth + ")");
-
-			if (this.props.results.last.hasOwnProperty("_next") && inViewport(listItem)) {
+			if (listItem && this.props.results.last.hasOwnProperty("_next") && inViewport(listItem)) {
 				var url = this.props.results.last._next.replace("draft//api", "draft/api");
 				this.props.onFetchNextResults(url);
 			}
