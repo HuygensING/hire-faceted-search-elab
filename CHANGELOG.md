@@ -1,3 +1,6 @@
+### v2.1.1	(2015/9/17 11:34)
+* fix li is null bug on scroll
+
 ### v2.1.0	(2015/9/7 9:8)
 * travis icon in readme
 * added tests
