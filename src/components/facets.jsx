@@ -28,10 +28,9 @@ class Facets extends React.Component {
 					onSelectFacetValue={this.props.onSelectFacetValue}
 					queries={this.props.queries} />);
 			});
-
 		return (
 			<ul className="hire-faceted-search-facets">
-				<button onClick={this.props.onNewSearch}>New search</button>
+				<button onClick={this.props.onNewSearch}>{this.props.labels.newSearch || "New search"}</button>
 				<TextSearch
 					onChangeSearchTerm={this.props.onChangeSearchTerm}
 					value={this.props.queries.last.term} />

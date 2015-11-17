@@ -2769,14 +2769,13 @@ var Facets = (function (_React$Component) {
 					onSelectFacetValue: _this.props.onSelectFacetValue,
 					queries: _this.props.queries });
 			});
-
 			return _react2["default"].createElement(
 				"ul",
 				{ className: "hire-faceted-search-facets" },
 				_react2["default"].createElement(
 					"button",
 					{ onClick: this.props.onNewSearch },
-					"New search"
+					this.props.labels.newSearch || "New search"
 				),
 				_react2["default"].createElement(_textSearch2["default"], {
 					onChangeSearchTerm: this.props.onChangeSearchTerm,
