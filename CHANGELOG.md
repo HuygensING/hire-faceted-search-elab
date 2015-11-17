@@ -1,3 +1,6 @@
+### v2.1.2	(2015/11/17 11:39)
+* allow override of new search label
+
 ### v2.1.1	(2015/9/17 11:34)
 * fix li is null bug on scroll
 
