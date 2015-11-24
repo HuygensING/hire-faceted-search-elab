@@ -68,7 +68,6 @@ class FacetedSearch extends React.Component {
 		// Set the next query. Use case: on forced rerender or
 		// when passing query from one search to another.
 		if (nextProps.query != null) {
-			console.log("component received props");
 			this.setQuery(nextProps.query);
 		}
 	}
