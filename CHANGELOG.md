@@ -1,3 +1,6 @@
+### v2.2.0	(2015/11/24 13:38)
+* set facetValues via query prop like in hire-faceted-search
+
 ### v2.1.2	(2015/11/17 11:39)
 * allow override of new search label
 
