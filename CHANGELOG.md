@@ -1,3 +1,6 @@
+### v2.2.1	(2015/11/24 13:39)
+* removed console log message
+
 ### v2.2.0	(2015/11/24 13:38)
 * set facetValues via query prop like in hire-faceted-search
 
