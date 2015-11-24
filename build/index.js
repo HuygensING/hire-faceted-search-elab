@@ -2543,6 +2543,7 @@ Object.defineProperty(exports, "__esModule", {
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 exports.selectFacetValue = selectFacetValue;
+exports.setFacetValues = setFacetValues;
 exports.newSearch = newSearch;
 exports.changeSearchTerm = changeSearchTerm;
 exports.setSort = setSort;
@@ -2566,6 +2567,13 @@ function selectFacetValue(facetName, value, remove) {
 	var part2 = remove ? { type: "REMOVE_FACET_VALUE" } : { type: "ADD_FACET_VALUE" };
 
 	return createNewQuery(_extends(part1, part2));
+}
+
+function setFacetValues(facetValues) {
+	return createNewQuery({
+		type: "SET_FACET_VALUES",
+		facetValues: facetValues
+	});
 }
 
 function newSearch() {
@@ -4877,6 +4885,13 @@ var FacetedSearch = (function (_React$Component) {
 					labels: nextProps.labels
 				});
 			}
+
+			// Set the next query. Use case: on forced rerender or
+			// when passing query from one search to another.
+			if (nextProps.query != null) {
+				console.log("component received props");
+				this.setQuery(nextProps.query);
+			}
 		}
 	}, {
 		key: "componentWillUpdate",
@@ -4891,6 +4906,14 @@ var FacetedSearch = (function (_React$Component) {
 		key: "componentWillUnmount",
 		value: function componentWillUnmount() {
 			this.unsubscribe();
+		}
+	}, {
+		key: "setQuery",
+		value: function setQuery(nextQuery) {
+			// TODO: should set entire query!
+			if (nextQuery.facetValues && !(0, _lodashIsequal2["default"])(nextQuery.facetValues, this.state.queries.last.facetValues)) {
+				this.store.dispatch((0, _actionsQueries.setFacetValues)(nextQuery.facetValues));
+			}
 		}
 	}, {
 		key: "handleFetchNextResults",
@@ -5200,6 +5223,12 @@ exports["default"] = function (state, action) {
 				facetValues: addFacetValue(state.last.facetValues, action.facetName, action.value)
 			});
 
+			return addQueryToState(state, query);
+
+		case "SET_FACET_VALUES":
+			query = _extends({}, state.last, {
+				facetValues: action.facetValues
+			});
 			return addQueryToState(state, query);
 
 		case "CHANGE_SEARCH_TERM":

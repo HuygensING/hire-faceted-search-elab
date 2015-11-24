@@ -21,6 +21,15 @@ export function selectFacetValue(facetName, value, remove) {
 	return createNewQuery(Object.assign(part1, part2));
 }
 
+
+export function setFacetValues(facetValues) {
+	return createNewQuery({
+		type: "SET_FACET_VALUES",
+		facetValues: facetValues
+	});
+}
+
+
 export function newSearch() {
 	return createNewQuery({
 		type: "NEW_SEARCH"

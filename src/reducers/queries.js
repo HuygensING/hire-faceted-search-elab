@@ -105,6 +105,13 @@ export default function(state=initialState, action) {
 
 			return addQueryToState(state, query);
 
+		case "SET_FACET_VALUES":
+			query = {...state.last, ...{
+				facetValues: action.facetValues
+			}};
+			return addQueryToState(state, query);
+
+
 		case "CHANGE_SEARCH_TERM":
 			query = {...state.last, ...{term: action.value}};
 

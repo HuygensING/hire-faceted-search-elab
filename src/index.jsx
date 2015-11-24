@@ -6,7 +6,7 @@ import Results from "./components/results";
 import Loader from "./components/icons/loader-three-dots";
 
 import {fetchResults, fetchNextResults} from "./actions/results";
-import {selectFacetValue, newSearch, setSort, changeSearchTerm} from "./actions/queries";
+import {selectFacetValue, newSearch, setSort, changeSearchTerm, setFacetValues} from "./actions/queries";
 
 import {createStore, applyMiddleware} from "redux";
 import reducers from "./reducers";
@@ -21,7 +21,6 @@ const logger = store => next => action => {
 };
 
 let createStoreWithMiddleware = applyMiddleware(logger, thunkMiddleware)(createStore);
-
 
 let fs = require("fs");
 import insertCss from "insert-css";
@@ -65,6 +64,13 @@ class FacetedSearch extends React.Component {
 				labels: nextProps.labels
 			});
 		}
+
+		// Set the next query. Use case: on forced rerender or
+		// when passing query from one search to another.
+		if (nextProps.query != null) {
+			console.log("component received props");
+			this.setQuery(nextProps.query);
+		}
 	}
 
 	componentWillUpdate(nextProps, nextState) {
@@ -77,6 +83,13 @@ class FacetedSearch extends React.Component {
 
 	componentWillUnmount() {
 		this.unsubscribe();
+	}
+
+	setQuery(nextQuery) {
+		// TODO: should set entire query!
+		if (nextQuery.facetValues && !isEqual(nextQuery.facetValues, this.state.queries.last.facetValues)) {
+			this.store.dispatch(setFacetValues(nextQuery.facetValues));
+		}
 	}
 
 	handleFetchNextResults(url) {
