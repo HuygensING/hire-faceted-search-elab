@@ -80,16 +80,8 @@ class SortMenu extends React.Component {
 }
 
 SortMenu.sortFunctions = {
-	alphaAsc: (valA, valB) => {
-		if (valA.name > valB.name) return 1;
-		if (valB.name > valA.name) return -1;
-		return 0;
-	},
-	alphaDesc: (valA, valB) => {
-		if (valA.name > valB.name) return -1;
-		if (valB.name > valA.name) return 1;
-		return 0;
-	},
+	alphaAsc: (valA, valB) => valA.name.localeCompare(valB.name),
+	alphaDesc: (valA, valB) => valB.name.localeCompare(valA.name),
 	countAsc: (valA, valB) => {
 		if (valA.count > valB.count) return 1;
 		if (valB.count > valA.count) return -1;
