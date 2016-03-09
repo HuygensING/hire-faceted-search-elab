@@ -1,3 +1,6 @@
+### v2.2.2	(2016/3/9 16:7)
+* fixes alphaSorts
+
 ### v2.2.1	(2015/11/24 13:39)
 * removed console log message
 
